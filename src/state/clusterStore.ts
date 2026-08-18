@@ -160,7 +160,6 @@ let simTimer: ReturnType<typeof setInterval> | null = null;
 
 export const clusterActions = {
   simulateOutage() {
-    console.log("[aeon] simulateOutage", state.phase, !!simTimer);
     if (state.phase === "failing" || simTimer) return;
     set({ phase: "failing", progress: 38, failedNode: "lambda-east", simRuns: state.simRuns + 1 });
     pushEvent(OUTAGE_STEPS[0]!);
