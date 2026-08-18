@@ -143,7 +143,6 @@ function LiveOperations() {
     }, 900);
   };
 
-
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       {/* Column 1 */}

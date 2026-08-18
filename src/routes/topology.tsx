@@ -4,6 +4,7 @@ import { useState } from "react";
 import { GitBranch, AlertTriangle, CheckCircle, Server } from "lucide-react";
 import { Panel, Pill } from "@/components/aeon/primitives";
 import { cn } from "@/lib/utils";
+import { CRDB_NODES } from "@/data/mockCluster";
 
 export const Route = createFileRoute("/topology")({
   head: () => ({
@@ -233,6 +234,68 @@ function TopologyView() {
           </ul>
         </Panel>
       </div>
+      <Panel
+        title="CockroachDB Node Inventory"
+        subtitle="6 nodes across 3 AWS regions · ccloud cluster node list"
+        icon={<Server className="size-4" />}
+        bodyClassName="p-0"
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[52rem] text-sm">
+            <thead>
+              <tr className="border-b border-border-subtle text-left text-[0.68rem] uppercase tracking-[0.12em] text-muted-foreground">
+                <th className="px-5 py-3 font-semibold">Node</th>
+                <th className="px-5 py-3 font-semibold">Address</th>
+                <th className="px-5 py-3 font-semibold">AZ</th>
+                <th className="px-5 py-3 font-semibold">Ranges</th>
+                <th className="px-5 py-3 font-semibold">Leases</th>
+                <th className="px-5 py-3 font-semibold">CPU</th>
+                <th className="px-5 py-3 font-semibold">Live bytes</th>
+                <th className="px-5 py-3 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {CRDB_NODES.map((n) => (
+                <tr
+                  key={n.id}
+                  className="border-b border-border-subtle/70 last:border-0 hover:bg-surface/60"
+                >
+                  <td className="px-5 py-3.5 font-mono text-xs font-semibold">n{n.id}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs text-muted-foreground">
+                    {n.address}
+                  </td>
+                  <td className="px-5 py-3.5 font-mono text-xs">{n.az}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs tabular-nums">{n.ranges}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs tabular-nums">{n.leases}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs tabular-nums">{n.cpu}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs tabular-nums">{n.liveBytes}</td>
+                  <td className="px-5 py-3.5">
+                    <Pill
+                      tone={
+                        n.status === "live"
+                          ? "success"
+                          : n.status === "degraded"
+                            ? "warning"
+                            : "danger"
+                      }
+                    >
+                      {n.status === "live" ? (
+                        <>
+                          <CheckCircle className="size-3" /> Live
+                        </>
+                      ) : (
+                        <>
+                          <AlertTriangle className="size-3" /> {n.status}
+                        </>
+                      )}
+                    </Pill>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
       <CustomBlocks view="topology" />
     </div>
   );
