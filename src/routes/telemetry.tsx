@@ -113,9 +113,9 @@ function TelemetryView() {
           <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Span detail
           </p>
-          <p className="mt-2 text-sm font-semibold">{SPANS[selected].name}</p>
+          <p className="mt-2 text-sm font-semibold">{SPANS[selected]!.name}</p>
           <p className="mt-1 font-mono text-xs text-muted-foreground">
-            {SPANS[selected].detail}
+            {SPANS[selected]!.detail}
           </p>
         </div>
       </Panel>

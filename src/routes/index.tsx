@@ -124,10 +124,10 @@ function LiveOperations() {
     if (phase === "failing") return;
     setPhase("failing");
     setProgress(38);
-    setLog((l) => [...l, OUTAGE_LOG[0]]);
+    setLog((l) => [...l, OUTAGE_LOG[0]!]);
     let i = 1;
     const tick = setInterval(() => {
-      setLog((l) => [...l, OUTAGE_LOG[i]]);
+      setLog((l) => [...l, OUTAGE_LOG[i]!]);
       if (i === 1) setPhase("recovered");
       setProgress(38 + i * 12);
       i += 1;
