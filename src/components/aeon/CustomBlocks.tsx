@@ -17,7 +17,7 @@ export function CustomBlocks({ view }: { view: ViewKey }) {
   if (isEmpty) return null;
 
   return (
-    <section className="space-y-4">
+    <section className="col-span-full space-y-4">
       {config.title && (
         <div className="flex items-center gap-2">
           <Sparkles className="size-4 shrink-0 text-info" />
