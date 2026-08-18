@@ -125,12 +125,16 @@ function LiveOperations() {
     if (phase === "failing") return;
     setPhase("failing");
     setProgress(38);
-    setLog((l) => [...l, OUTAGE_LOG[0]!]);
+    const first = OUTAGE_LOG[0];
+    if (first) setLog((l) => (l.includes(first) ? l : [...l, first]));
     let i = 1;
     const tick = setInterval(() => {
-      setLog((l) => [...l, OUTAGE_LOG[i]!]);
+      const entry = OUTAGE_LOG[i];
+      if (entry) {
+        setLog((l) => (l.includes(entry) ? l : [...l, entry]));
+      }
       if (i === 1) setPhase("recovered");
-      setProgress(38 + i * 12);
+      setProgress(Math.min(100, 38 + i * 12));
       i += 1;
       if (i >= OUTAGE_LOG.length) {
         clearInterval(tick);
@@ -138,6 +142,7 @@ function LiveOperations() {
       }
     }, 900);
   };
+
 
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
