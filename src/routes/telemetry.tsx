@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { useState } from "react";
 import { Cpu, Activity } from "lucide-react";
 import { Metric, Panel, Pill } from "@/components/aeon/primitives";
@@ -16,8 +17,7 @@ export const Route = createFileRoute("/telemetry")({
       { property: "og:title", content: "Execution Telemetry & Tracing | Aeon" },
       {
         property: "og:description",
-        content:
-          "Per-step latency breakdown of the Aeon agent's autonomous remediation trace.",
+        content: "Per-step latency breakdown of the Aeon agent's autonomous remediation trace.",
       },
     ],
   }),
@@ -114,9 +114,7 @@ function TelemetryView() {
             Span detail
           </p>
           <p className="mt-2 text-sm font-semibold">{SPANS[selected]!.name}</p>
-          <p className="mt-1 font-mono text-xs text-muted-foreground">
-            {SPANS[selected]!.detail}
-          </p>
+          <p className="mt-1 font-mono text-xs text-muted-foreground">{SPANS[selected]!.detail}</p>
         </div>
       </Panel>
 
@@ -153,6 +151,7 @@ function TelemetryView() {
           </table>
         </div>
       </Panel>
+      <CustomBlocks view="telemetry" />
     </div>
   );
 }

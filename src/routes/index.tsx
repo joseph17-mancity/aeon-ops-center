@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { useEffect, useRef, useState } from "react";
 import {
   Activity,
@@ -155,9 +156,7 @@ function LiveOperations() {
           <p className="font-mono text-sm font-semibold">session_crdb_9842_failover</p>
           <div className="mt-5">
             <div className="flex items-center justify-between text-xs font-semibold">
-              <span className="text-muted-foreground">
-                Step {progress >= 100 ? 4 : 3} of 4
-              </span>
+              <span className="text-muted-foreground">Step {progress >= 100 ? 4 : 3} of 4</span>
               <span className="tabular-nums text-success">{progress}% Complete</span>
             </div>
             <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-surface">
@@ -209,9 +208,7 @@ function LiveOperations() {
               },
               {
                 k: "vector_distance",
-                v: (
-                  <span className="text-info">Cosine: 0.084 (High Similarity Match)</span>
-                ),
+                v: <span className="text-info">Cosine: 0.084 (High Similarity Match)</span>,
               },
             ]}
           />
@@ -248,8 +245,7 @@ function LiveOperations() {
           <p className="min-w-0 truncate text-xs text-muted-foreground">
             {phase === "recovered" ? (
               <span className="inline-flex items-center gap-1.5 text-success">
-                <CheckCircle className="size-3.5 shrink-0" /> Resumed in us-west-2 · zero
-                data loss
+                <CheckCircle className="size-3.5 shrink-0" /> Resumed in us-west-2 · zero data loss
               </span>
             ) : phase === "failing" ? (
               <span className="inline-flex items-center gap-1.5 text-danger">
@@ -268,6 +264,7 @@ function LiveOperations() {
           </button>
         </div>
       </Panel>
+      <CustomBlocks view="operations" />
     </div>
   );
 }
