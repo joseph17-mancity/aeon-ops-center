@@ -130,16 +130,17 @@ function TopologyView() {
                     x={n.x}
                     y={n.y - 4}
                     textAnchor="middle"
-                    className="fill-current text-[12px] font-bold text-foreground"
+                    fontSize="13" fontWeight="700" className="fill-current text-foreground"
                   >
                     {n.label}
                   </text>
                   <text
                     x={n.x}
-                    y={n.y + 13}
+                    y={n.y + 14}
                     textAnchor="middle"
+                    fontSize="10.5"
                     className={cn(
-                      "text-[10px] font-semibold",
+                      "font-semibold",
                       isFailed ? "fill-danger" : isTarget ? "fill-success" : "fill-current text-muted-foreground",
                     )}
                   >
