@@ -93,12 +93,11 @@ function AuditView() {
         <p className="text-sm leading-relaxed text-foreground/90">
           At 06:12 UTC a VPC ENI exhaustion in <strong>us-east-1</strong> caused AWS Lambda
           invocations to time out, triggering the CloudWatch alarm{" "}
-          <span className="font-mono text-xs">lambda-vpc-timeout</span>. Aeon retrieved the
-          matching runbook from the CockroachDB vector index (cosine 0.084), reasoned a
-          four-step plan with AWS Bedrock, and executed remediation through the ccloud CLI.
-          When the us-east-1 worker was lost mid-execution, the us-west-2 worker rehydrated
-          the exact checkpoint from the persistent agentic memory layer and completed the
-          remediation with no duplicated writes.
+          <span className="font-mono text-xs">lambda-vpc-timeout</span>. Aeon retrieved the matching
+          runbook from the CockroachDB vector index (cosine 0.084), reasoned a four-step plan with
+          AWS Bedrock, and executed remediation through the ccloud CLI. When the us-east-1 worker
+          was lost mid-execution, the us-west-2 worker rehydrated the exact checkpoint from the
+          persistent agentic memory layer and completed the remediation with no duplicated writes.
         </p>
         <div className="mt-4">
           <KeyValue
@@ -106,7 +105,10 @@ function AuditView() {
               { k: "impact_window", v: "06:12:04 → 06:14:19 UTC (2m 15s)" },
               { k: "customer_impact", v: "None — reads served from us-west-2 and eu-central-1" },
               { k: "root_cause", v: "VPC ENI exhaustion in private subnet (us-east-1a)" },
-              { k: "corrective_action", v: "Scale ENI pool; add secondary VECTOR INDEX per advisor" },
+              {
+                k: "corrective_action",
+                v: "Scale ENI pool; add secondary VECTOR INDEX per advisor",
+              },
             ]}
           />
         </div>
@@ -151,7 +153,7 @@ function AuditView() {
           </table>
         </div>
       </Panel>
-    <CustomBlocks view="audit" />
+      <CustomBlocks view="audit" />
     </div>
   );
 }

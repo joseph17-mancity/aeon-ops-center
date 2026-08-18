@@ -17,8 +17,7 @@ export const Route = createFileRoute("/telemetry")({
       { property: "og:title", content: "Execution Telemetry & Tracing | Aeon" },
       {
         property: "og:description",
-        content:
-          "Per-step latency breakdown of the Aeon agent's autonomous remediation trace.",
+        content: "Per-step latency breakdown of the Aeon agent's autonomous remediation trace.",
       },
     ],
   }),
@@ -115,9 +114,7 @@ function TelemetryView() {
             Span detail
           </p>
           <p className="mt-2 text-sm font-semibold">{SPANS[selected]!.name}</p>
-          <p className="mt-1 font-mono text-xs text-muted-foreground">
-            {SPANS[selected]!.detail}
-          </p>
+          <p className="mt-1 font-mono text-xs text-muted-foreground">{SPANS[selected]!.detail}</p>
         </div>
       </Panel>
 
@@ -154,7 +151,7 @@ function TelemetryView() {
           </table>
         </div>
       </Panel>
-    <CustomBlocks view="telemetry" />
+      <CustomBlocks view="telemetry" />
     </div>
   );
 }

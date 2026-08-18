@@ -131,7 +131,9 @@ function TopologyView() {
                     x={n.x}
                     y={n.y - 4}
                     textAnchor="middle"
-                    fontSize="13" fontWeight="700" className="fill-current text-foreground"
+                    fontSize="13"
+                    fontWeight="700"
+                    className="fill-current text-foreground"
                   >
                     {n.label}
                   </text>
@@ -142,7 +144,11 @@ function TopologyView() {
                     fontSize="10.5"
                     className={cn(
                       "font-semibold",
-                      isFailed ? "fill-danger" : isTarget ? "fill-success" : "fill-current text-muted-foreground",
+                      isFailed
+                        ? "fill-danger"
+                        : isTarget
+                          ? "fill-success"
+                          : "fill-current text-muted-foreground",
                     )}
                   >
                     {isFailed ? "FAILED" : isTarget ? "RESUMED FROM MEMORY" : n.sub}
@@ -153,8 +159,8 @@ function TopologyView() {
           </svg>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          Click any node to simulate its failure. Aeon reroutes execution to the surviving
-          worker and rehydrates state from CockroachDB.
+          Click any node to simulate its failure. Aeon reroutes execution to the surviving worker
+          and rehydrates state from CockroachDB.
         </p>
       </Panel>
 
@@ -227,7 +233,7 @@ function TopologyView() {
           </ul>
         </Panel>
       </div>
-    <CustomBlocks view="topology" />
+      <CustomBlocks view="topology" />
     </div>
   );
 }

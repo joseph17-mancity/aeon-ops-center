@@ -60,7 +60,12 @@ function AdvisorView() {
   return (
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric label="MCP endpoint" value="Connected" hint="cockroachlabs.cloud/mcp" tone="success" />
+        <Metric
+          label="MCP endpoint"
+          value="Connected"
+          hint="cockroachlabs.cloud/mcp"
+          tone="success"
+        />
         <Metric label="Statements analysed" value="24,819" hint="last 6 hours" tone="info" />
         <Metric label="Open recommendations" value={`${RECOMMENDATIONS.length - applied.length}`} />
         <Metric label="Applied this week" value={`${7 + applied.length}`} tone="success" />
@@ -70,7 +75,11 @@ function AdvisorView() {
         title="Schema Advisor Sub-Agent"
         subtitle="Reasoning over MCP query telemetry with Claude 3.5 Sonnet"
         icon={<Cpu className="size-4" />}
-        action={<Pill tone="success" pulse>Analysing</Pill>}
+        action={
+          <Pill tone="success" pulse>
+            Analysing
+          </Pill>
+        }
       >
         <div className="space-y-3">
           {RECOMMENDATIONS.map((r) => {
@@ -134,7 +143,7 @@ function AdvisorView() {
           ))}
         </div>
       </Panel>
-    <CustomBlocks view="advisor" />
+      <CustomBlocks view="advisor" />
     </div>
   );
 }

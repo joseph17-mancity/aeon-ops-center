@@ -13,9 +13,7 @@ export function CustomBlocks({ view }: { view: ViewKey }) {
   if (!config) return null;
 
   const isEmpty =
-    config.metrics.length === 0 &&
-    config.cards.length === 0 &&
-    config.buttons.length === 0;
+    config.metrics.length === 0 && config.cards.length === 0 && config.buttons.length === 0;
   if (isEmpty) return null;
 
   return (

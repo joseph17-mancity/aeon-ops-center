@@ -93,7 +93,12 @@ function MemoryView() {
         <Metric label="Vector rows" value="1.28 M" hint="runbook_embeddings" tone="info" />
         <Metric label="Cross-region sync" value="99.999%" hint="last 24h" tone="success" />
         <Metric label="Index type" value="VECTOR (cosine)" hint="1536 dimensions" />
-        <Metric label="Serializable txns" value="0 anomalies" hint="zero data loss" tone="success" />
+        <Metric
+          label="Serializable txns"
+          value="0 anomalies"
+          hint="zero data loss"
+          tone="success"
+        />
       </div>
 
       <Panel
@@ -157,13 +162,9 @@ function MemoryView() {
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{r.title}</p>
-                <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
-                  {r.tags}
-                </p>
+                <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">{r.tags}</p>
               </div>
-              <Pill tone={r.cosine < 0.1 ? "success" : "info"}>
-                Cosine {r.cosine.toFixed(3)}
-              </Pill>
+              <Pill tone={r.cosine < 0.1 ? "success" : "info"}>Cosine {r.cosine.toFixed(3)}</Pill>
             </li>
           ))}
           {results.length === 0 && (
@@ -173,7 +174,7 @@ function MemoryView() {
           )}
         </ul>
       </Panel>
-    <CustomBlocks view="memory" />
+      <CustomBlocks view="memory" />
     </div>
   );
 }
