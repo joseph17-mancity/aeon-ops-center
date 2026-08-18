@@ -7,6 +7,8 @@
  * every view reads straight from these arrays.
  */
 
+import { CLUSTER, REGION_IDS } from "@/config/clusterIdentity";
+
 export type NodeStatus = "live" | "degraded" | "down";
 
 export type CrdbNode = {
@@ -24,92 +26,22 @@ export type CrdbNode = {
   version: string;
 };
 
-export const CRDB_NODES: CrdbNode[] = [
-  {
-    id: 1,
-    address: "aeon-crdb-1.us-east-1:26257",
-    region: "us-east-1",
-    az: "us-east-1a",
-    status: "live",
-    ranges: 4182,
-    leases: 1394,
-    cpu: "0.41",
-    liveBytes: "412 GiB",
-    vectorRows: "1,284,904",
-    replicationLag: "1.2 ms",
-    version: "v24.3.4",
-  },
-  {
-    id: 2,
-    address: "aeon-crdb-2.us-east-1:26257",
-    region: "us-east-1",
-    az: "us-east-1b",
-    status: "degraded",
-    ranges: 4180,
-    leases: 902,
-    cpu: "0.78",
-    liveBytes: "410 GiB",
-    vectorRows: "1,284,904",
-    replicationLag: "4.9 ms",
-    version: "v24.3.4",
-  },
-  {
-    id: 3,
-    address: "aeon-crdb-3.us-west-2:26257",
-    region: "us-west-2",
-    az: "us-west-2a",
-    status: "live",
-    ranges: 4181,
-    leases: 1421,
-    cpu: "0.33",
-    liveBytes: "411 GiB",
-    vectorRows: "1,284,904",
-    replicationLag: "1.8 ms",
-    version: "v24.3.4",
-  },
-  {
-    id: 4,
-    address: "aeon-crdb-4.us-west-2:26257",
-    region: "us-west-2",
-    az: "us-west-2c",
-    status: "live",
-    ranges: 4179,
-    leases: 1188,
-    cpu: "0.29",
-    liveBytes: "409 GiB",
-    vectorRows: "1,284,903",
-    replicationLag: "2.1 ms",
-    version: "v24.3.4",
-  },
-  {
-    id: 5,
-    address: "aeon-crdb-5.eu-central-1:26257",
-    region: "eu-central-1",
-    az: "eu-central-1a",
-    status: "live",
-    ranges: 4183,
-    leases: 1104,
-    cpu: "0.36",
-    liveBytes: "413 GiB",
-    vectorRows: "1,284,901",
-    replicationLag: "34.6 ms",
-    version: "v24.3.4",
-  },
-  {
-    id: 6,
-    address: "aeon-crdb-6.eu-central-1:26257",
-    region: "eu-central-1",
-    az: "eu-central-1b",
-    status: "live",
-    ranges: 4177,
-    leases: 986,
-    cpu: "0.31",
-    liveBytes: "408 GiB",
-    vectorRows: "1,284,901",
-    replicationLag: "35.8 ms",
-    version: "v24.3.4",
-  },
-];
+/** Node inventory derived from the editable cluster identity config. */
+export const CRDB_NODES: CrdbNode[] = CLUSTER.nodes.map((n) => ({
+  id: n.id,
+  address: `${n.host}.${n.region}:26257`,
+  region: n.region,
+  az: n.az,
+  status: n.status,
+  ranges: n.ranges,
+  leases: n.leases,
+  cpu: n.cpu,
+  liveBytes: n.liveBytes,
+  vectorRows: n.vectorRows,
+  replicationLag: n.replicationLag,
+  version: CLUSTER.crdbVersion,
+}));
+
 
 export type VectorRow = {
   id: string;
@@ -352,7 +284,7 @@ export const MCP_AUDIT_LOG: AuditRow[] = [
 ];
 
 /** Region rollups derived from CRDB_NODES */
-export const REGION_ROLLUP = ["us-east-1", "us-west-2", "eu-central-1"].map((region) => {
+export const REGION_ROLLUP = REGION_IDS.map((region) => {
   const nodes = CRDB_NODES.filter((n) => n.region === region);
   return {
     region,
