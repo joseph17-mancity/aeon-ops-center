@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CustomBlocks } from "@/components/aeon/CustomBlocks";
-import { useState } from "react";
 import { GitBranch, AlertTriangle, CheckCircle, Server } from "lucide-react";
 import { Panel, Pill } from "@/components/aeon/primitives";
 import { cn } from "@/lib/utils";
 import { CRDB_NODES } from "@/data/mockCluster";
+import { clusterActions, useCluster } from "@/state/clusterStore";
 
 export const Route = createFileRoute("/topology")({
   head: () => ({
@@ -35,7 +35,7 @@ type NodeDef = {
   kind: "db" | "lambda" | "k8s";
 };
 
-const NODES: NodeDef[] = [
+const BASE_NODES: NodeDef[] = [
   { id: "crdb-east", label: "CRDB node-1", sub: "us-east-1", x: 130, y: 70, kind: "db" },
   { id: "crdb-west", label: "CRDB node-2", sub: "us-west-2", x: 130, y: 200, kind: "db" },
   { id: "crdb-eu", label: "CRDB node-3", sub: "eu-central-1", x: 130, y: 330, kind: "db" },
@@ -44,7 +44,7 @@ const NODES: NodeDef[] = [
   { id: "k8s-onprem", label: "K8s cluster", sub: "on-premise DC", x: 430, y: 330, kind: "k8s" },
 ];
 
-const EDGES: [string, string][] = [
+const BASE_EDGES: [string, string][] = [
   ["crdb-east", "lambda-east"],
   ["crdb-west", "lambda-west"],
   ["crdb-eu", "k8s-onprem"],
@@ -52,11 +52,28 @@ const EDGES: [string, string][] = [
   ["crdb-west", "crdb-eu"],
 ];
 
-const byId = (id: string) => NODES.find((n) => n.id === id)!;
-
 function TopologyView() {
-  const [failed, setFailed] = useState<string | null>(null);
-  const [hybrid, setHybrid] = useState(false);
+  const failed = useCluster((s) => s.failedNode);
+  const hybrid = useCluster((s) => s.hybridTarget);
+  const extraRegions = useCluster((s) => s.extraRegions);
+
+  const NODES: NodeDef[] = [
+    ...BASE_NODES,
+    ...extraRegions.map((r, i) => ({
+      id: r.id,
+      label: r.label,
+      sub: r.sub,
+      x: 130,
+      y: 460 + i * 130,
+      kind: "db" as const,
+    })),
+  ];
+  const EDGES: [string, string][] = [
+    ...BASE_EDGES,
+    ...extraRegions.map((r) => ["crdb-eu", r.id] as [string, string]),
+  ];
+  const byId = (id: string) => NODES.find((n) => n.id === id)!;
+  const viewHeight = 400 + extraRegions.length * 130;
 
   const failoverTarget = failed ? (hybrid ? "k8s-onprem" : "lambda-west") : null;
 
@@ -73,7 +90,7 @@ function TopologyView() {
         }
       >
         <div className="overflow-x-auto rounded-xl bg-surface/60 ring-1 ring-border-subtle">
-          <svg viewBox="0 0 560 400" className="h-auto w-full min-w-[34rem]">
+          <svg viewBox={`0 0 560 ${viewHeight}`} className="h-auto w-full min-w-[34rem]">
             {EDGES.map(([a, b]) => {
               const na = byId(a);
               const nb = byId(b);
@@ -108,7 +125,7 @@ function TopologyView() {
                 <g
                   key={n.id}
                   className="cursor-pointer"
-                  onClick={() => setFailed((f) => (f === n.id ? null : n.id))}
+                  onClick={() => clusterActions.setFailedNode(failed === n.id ? null : n.id, n.label)}
                   opacity={dim ? 0.4 : 1}
                 >
                   <rect
@@ -177,7 +194,7 @@ function TopologyView() {
             <button
               role="switch"
               aria-checked={hybrid}
-              onClick={() => setHybrid((h) => !h)}
+              onClick={() => clusterActions.toggleHybrid()}
               className={cn(
                 "relative h-6 w-11 shrink-0 rounded-full transition-colors",
                 hybrid ? "bg-success" : "bg-border",
@@ -193,13 +210,13 @@ function TopologyView() {
           </label>
           <div className="mt-3 flex flex-wrap gap-2">
             <button
-              onClick={() => setFailed("lambda-east")}
+              onClick={() => clusterActions.setFailedNode("lambda-east", "Lambda worker us-east-1")}
               className="rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
             >
               Fail us-east-1 worker
             </button>
             <button
-              onClick={() => setFailed(null)}
+              onClick={() => clusterActions.setFailedNode(null)}
               className="rounded-xl bg-surface px-3.5 py-2 text-xs font-semibold text-muted-foreground ring-1 ring-border-subtle transition-colors hover:text-foreground"
             >
               Reset topology
@@ -209,7 +226,7 @@ function TopologyView() {
 
         <Panel title="Region Status" icon={<GitBranch className="size-4" />} bodyClassName="p-0">
           <ul className="divide-y divide-border-subtle">
-            {["us-east-1", "us-west-2", "eu-central-1", "on-premise DC"].map((r) => {
+            {["us-east-1", "us-west-2", "eu-central-1", "on-premise DC", ...extraRegions.map((r) => r.sub)].map((r) => {
               const down = failed !== null && byId(failed).sub === r;
               return (
                 <li

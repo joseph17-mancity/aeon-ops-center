@@ -1,8 +1,56 @@
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Metric, Panel } from "@/components/aeon/primitives";
-import { viewCustomizations, type ViewKey } from "@/config/viewCustomizations";
+import {
+  viewCustomizations,
+  type CustomButton,
+  type ViewKey,
+} from "@/config/viewCustomizations";
 import { cn } from "@/lib/utils";
+import { clusterActions } from "@/state/clusterStore";
+import { SPAN_TRACE } from "@/data/mockCluster";
+import { downloadJson } from "@/lib/download";
+
+/** Real behaviour for the named actions available to custom buttons. */
+const actionHandlers: Record<NonNullable<CustomButton["action"]>, () => void> = {
+  reindex: () =>
+    clusterActions.reindexRunbooks((rows) =>
+      toast.success("Vector index rebuilt", {
+        description: `${rows.toLocaleString()} rows now searchable.`,
+      }),
+    ),
+  exportTraces: () => {
+    downloadJson(`aeon-traces-${Date.now()}.json`, {
+      trace_id: "4f9ac81b",
+      session: "session_crdb_9842_failover",
+      exported_at: new Date().toISOString(),
+      spans: SPAN_TRACE,
+    });
+    toast.success("Trace bundle exported", { description: "JSON downloaded to your device." });
+  },
+  advisorSweep: () => {
+    const rec = clusterActions.runAdvisorSweep();
+    toast.success("Advisor sweep complete", { description: rec.title });
+  },
+  emailRca: () => {
+    const subject = encodeURIComponent("INC-2291 RCA — Aeon autonomous remediation");
+    const body = encodeURIComponent(
+      "Attached: INC-2291 post-mortem. MTTR 23.6s, zero data loss, remediated autonomously by Aeon.",
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    toast.success("RCA drafted", { description: "Your mail client is opening the briefing." });
+  },
+  addRegion: () => {
+    const next = clusterActions.addRegion();
+    if (!next) {
+      toast.error("Region pool exhausted", { description: "No further regions available." });
+      return;
+    }
+    toast.success(`Region ${next.sub} provisioned`, {
+      description: `${next.label} joined the cluster.`,
+    });
+  },
+};
 
 /**
  * Renders the user-editable metrics, cards and buttons for a view.
@@ -71,6 +119,10 @@ export function CustomBlocks({ view }: { view: ViewKey }) {
               key={b.label}
               onClick={() => {
                 if (b.href) window.open(b.href, "_blank", "noopener,noreferrer");
+                if (b.action) {
+                  actionHandlers[b.action]();
+                  return;
+                }
                 if (b.toast) toast.success(b.toast);
               }}
               className={cn(

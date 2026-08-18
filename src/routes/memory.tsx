@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Database, Search, CheckCircle } from "lucide-react";
 import { Metric, Panel, Pill } from "@/components/aeon/primitives";
 import { REGION_ROLLUP, VECTOR_INDEX_ROWS } from "@/data/mockCluster";
+import { useCluster } from "@/state/clusterStore";
 
 export const Route = createFileRoute("/memory")({
   head: () => ({
@@ -29,6 +30,9 @@ const REGIONS = REGION_ROLLUP;
 const RUNBOOKS = VECTOR_INDEX_ROWS;
 
 function MemoryView() {
+  const vectorRows = useCluster((s) => s.vectorRows);
+  const reindexing = useCluster((s) => s.reindexing);
+  const reindexProgress = useCluster((s) => s.reindexProgress);
   const [q, setQ] = useState("VPC Timeout & Lambda Retry");
   const results = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -47,7 +51,12 @@ function MemoryView() {
   return (
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric label="Vector rows" value="1.28 M" hint="runbook_embeddings" tone="info" />
+        <Metric
+          label="Vector rows"
+          value={`${(vectorRows / 1_000_000).toFixed(2)} M`}
+          hint={reindexing ? `Re-indexing… ${reindexProgress}%` : "runbook_embeddings"}
+          tone="info"
+        />
         <Metric label="Cross-region sync" value="99.999%" hint="last 24h" tone="success" />
         <Metric label="Index type" value="VECTOR (cosine)" hint="1536 dimensions" />
         <Metric
@@ -113,6 +122,9 @@ function MemoryView() {
             className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
         </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {results.length} of {RUNBOOKS.length} runbooks match this embedding query.
+        </p>
         <ul className="mt-4 space-y-2">
           {results.map((r) => (
             <li

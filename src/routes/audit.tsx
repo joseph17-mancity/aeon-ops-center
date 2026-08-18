@@ -3,7 +3,8 @@ import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { FileText, Download, Terminal, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { KeyValue, Metric, Panel, Pill } from "@/components/aeon/primitives";
-import { MCP_AUDIT_LOG } from "@/data/mockCluster";
+import { useAuditTrail } from "@/state/clusterStore";
+import { downloadFile } from "@/lib/download";
 
 export const Route = createFileRoute("/audit")({
   head: () => ({
@@ -25,9 +26,30 @@ export const Route = createFileRoute("/audit")({
   component: AuditView,
 });
 
-const AUDIT = MCP_AUDIT_LOG;
-
 function AuditView() {
+  const AUDIT = useAuditTrail();
+
+  const downloadRca = () => {
+    const lines = [
+      "AEON · INCIDENT POST-MORTEM",
+      "INC-2291 — Lambda VPC timeout cascading to us-east-1",
+      `Generated: ${new Date().toISOString()}`,
+      "",
+      "IMPACT WINDOW   06:12:04 -> 06:14:19 UTC (2m 15s)",
+      "CUSTOMER IMPACT None — reads served from us-west-2 and eu-central-1",
+      "ROOT CAUSE      VPC ENI exhaustion in private subnet (us-east-1a)",
+      "MTTR            23.6s (-87% vs manual)",
+      "DATA LOSS       0 rows, 0 duplicated writes",
+      "",
+      "AUDIT TRAIL",
+      ...AUDIT.map((a) => `${a.t}  ${a.actor.padEnd(12)} ${a.region.padEnd(14)} ${a.action} -> ${a.result}`),
+    ];
+    downloadFile("INC-2291-post-mortem.txt", lines.join("\n"));
+    toast.success("RCA report generated", {
+      description: "INC-2291-post-mortem.txt downloaded.",
+    });
+  };
+
   return (
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -43,15 +65,11 @@ function AuditView() {
         icon={<ShieldCheck className="size-4" />}
         action={
           <button
-            onClick={() =>
-              toast.success("RCA report generated", {
-                description: "INC-2291-post-mortem.pdf queued for download",
-              })
-            }
+            onClick={downloadRca}
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
           >
             <Download className="size-3.5" />
-            Download RCA Report (PDF)
+            Download RCA Report
           </button>
         }
       >

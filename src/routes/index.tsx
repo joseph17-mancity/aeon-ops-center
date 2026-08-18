@@ -1,18 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CustomBlocks } from "@/components/aeon/CustomBlocks";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   Activity,
   AlertTriangle,
   CheckCircle,
   Database,
   MapPin,
+  RotateCcw,
   Terminal,
   Zap,
 } from "lucide-react";
 import { KeyValue, Panel, Pill } from "@/components/aeon/primitives";
 import { FailoverMap } from "@/components/aeon/FailoverMap";
 import { cn } from "@/lib/utils";
+import { clusterActions, useCluster, type LogTag } from "@/state/clusterStore";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,16 +36,6 @@ export const Route = createFileRoute("/")({
   component: LiveOperations,
 });
 
-type LogTag =
-  | "VECTOR SEARCH"
-  | "RAG MATCH FOUND"
-  | "MCP ENGINE"
-  | "AWS BEDROCK"
-  | "CCLOUD CLI"
-  | "STATE PERSIST"
-  | "REGION FAILURE"
-  | "MEMORY RESTORE";
-
 const tagTone: Record<LogTag, string> = {
   "VECTOR SEARCH": "text-info",
   "RAG MATCH FOUND": "text-success",
@@ -53,95 +45,20 @@ const tagTone: Record<LogTag, string> = {
   "STATE PERSIST": "text-info",
   "REGION FAILURE": "text-danger",
   "MEMORY RESTORE": "text-success",
+  TOPOLOGY: "text-warning",
+  ADVISOR: "text-info",
+  "INDEX BUILD": "text-info",
 };
 
-const BASE_LOG: { tag: LogTag; msg: string; t: string }[] = [
-  {
-    tag: "VECTOR SEARCH",
-    t: "06:12:04.118",
-    msg: "Querying CockroachDB Vector Index for runbooks matching 'VPC Timeout & Lambda Retry'...",
-  },
-  {
-    tag: "RAG MATCH FOUND",
-    t: "06:12:04.122",
-    msg: "Found runbook 'Auto-healing AWS Lambda VPC Timeout in us-east-1' (Cosine: 0.084).",
-  },
-  {
-    tag: "MCP ENGINE",
-    t: "06:12:04.140",
-    msg: "Reading database audit log from https://cockroachlabs.cloud/mcp - No transactional errors.",
-  },
-  {
-    tag: "AWS BEDROCK",
-    t: "06:12:04.159",
-    msg: "Reasoning complete: Triggering ccloud CLI auto-remediation.",
-  },
-  {
-    tag: "CCLOUD CLI",
-    t: "06:12:04.192",
-    msg: "ccloud cluster restart-node --node-id=2 --json -> Status: Success",
-  },
-  {
-    tag: "STATE PERSIST",
-    t: "06:12:04.201",
-    msg: "Checkpoint saved to CockroachDB 'agent_execution_sessions' table. Zero data loss.",
-  },
-];
-
-const OUTAGE_LOG: { tag: LogTag; msg: string; t: string }[] = [
-  {
-    tag: "REGION FAILURE",
-    t: "06:14:19.004",
-    msg: "us-east-1 worker crashed mid-step (SIGKILL). Lease lost on node-1.",
-  },
-  {
-    tag: "MEMORY RESTORE",
-    t: "06:14:19.031",
-    msg: "us-west-2 worker acquired session lease from CockroachDB. Rehydrating step 3 of 4.",
-  },
-  {
-    tag: "STATE PERSIST",
-    t: "06:14:19.058",
-    msg: "Resumed at 'Execute ccloud cluster scale-nodes'. 0 rows lost, 0 duplicated writes.",
-  },
-  {
-    tag: "CCLOUD CLI",
-    t: "06:14:19.404",
-    msg: "ccloud cluster scale-nodes --region us-west-2 --json -> Status: Success",
-  },
-];
-
 function LiveOperations() {
-  const [log, setLog] = useState(BASE_LOG);
-  const [phase, setPhase] = useState<"stable" | "failing" | "recovered">("stable");
-  const [progress, setProgress] = useState(75);
+  const log = useCluster((s) => s.events);
+  const phase = useCluster((s) => s.phase);
+  const progress = useCluster((s) => s.progress);
   const feedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
   }, [log]);
-
-  const simulate = () => {
-    if (phase === "failing") return;
-    setPhase("failing");
-    setProgress(38);
-    const first = OUTAGE_LOG[0];
-    if (first) setLog((l) => (l.includes(first) ? l : [...l, first]));
-    let i = 1;
-    const tick = setInterval(() => {
-      const entry = OUTAGE_LOG[i];
-      if (entry) {
-        setLog((l) => (l.includes(entry) ? l : [...l, entry]));
-      }
-      if (i === 1) setPhase("recovered");
-      setProgress(Math.min(100, 38 + i * 12));
-      i += 1;
-      if (i >= OUTAGE_LOG.length) {
-        clearInterval(tick);
-        setProgress(100);
-      }
-    }, 900);
-  };
 
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -192,7 +109,11 @@ function LiveOperations() {
 
         <Panel
           title="Regional Failover Map"
-          subtitle="us-east-1 (FAILED) → us-west-2 (RESUMED via COCKROACHDB MEMORY)"
+          subtitle={
+            phase === "stable"
+              ? "us-east-1 (PRIMARY) · all regions healthy"
+              : "us-east-1 (FAILED) → us-west-2 (RESUMED via COCKROACHDB MEMORY)"
+          }
           icon={<MapPin className="size-4" />}
         >
           <FailoverMap active={phase !== "stable" ? "us-west-2" : "us-east-1"} />
@@ -205,7 +126,13 @@ function LiveOperations() {
         >
           <KeyValue
             rows={[
-              { k: "last_persisted_step", v: "Execute ccloud cluster scale-nodes" },
+              {
+                k: "last_persisted_step",
+                v:
+                  phase === "stable"
+                    ? "Execute ccloud cluster restart-node"
+                    : "Execute ccloud cluster scale-nodes",
+              },
               {
                 k: "context_state",
                 v: "VPC Timeout isolated; DB transaction state preserved across regions",
@@ -259,13 +186,23 @@ function LiveOperations() {
               "Agent healthy · checkpointing every step"
             )}
           </p>
-          <button
-            onClick={simulate}
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-card transition-transform hover:scale-[1.02] active:scale-100"
-          >
-            <Zap className="size-4" />
-            Simulate Region Outage &amp; Agent Resume
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              onClick={() => clusterActions.resetSession()}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-surface px-3 py-2.5 text-xs font-semibold text-muted-foreground ring-1 ring-border-subtle transition-colors hover:text-foreground"
+            >
+              <RotateCcw className="size-3.5" />
+              Reset
+            </button>
+            <button
+              onClick={() => clusterActions.simulateOutage()}
+              disabled={phase === "failing"}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-card transition-transform hover:scale-[1.02] active:scale-100 disabled:opacity-50 disabled:hover:scale-100"
+            >
+              <Zap className="size-4" />
+              Simulate Region Outage &amp; Agent Resume
+            </button>
+          </div>
         </div>
       </Panel>
       <CustomBlocks view="operations" />

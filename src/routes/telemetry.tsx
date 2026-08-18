@@ -3,6 +3,7 @@ import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { useState } from "react";
 import { Cpu, Activity } from "lucide-react";
 import { Metric, Panel, Pill } from "@/components/aeon/primitives";
+import { SPAN_TRACE } from "@/data/mockCluster";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/telemetry")({
@@ -24,32 +25,7 @@ export const Route = createFileRoute("/telemetry")({
   component: TelemetryView,
 });
 
-const SPANS = [
-  {
-    name: "CloudWatch Alarm",
-    ms: 0.5,
-    tone: "info" as const,
-    detail: "Alarm 'lambda-vpc-timeout' → EventBridge → agent trigger",
-  },
-  {
-    name: "Bedrock Reasoning",
-    ms: 18.6,
-    tone: "slate" as const,
-    detail: "Claude 3.5 Sonnet · 4-step chain-of-action plan · 1,204 tokens",
-  },
-  {
-    name: "CockroachDB Vector Search",
-    ms: 1.31,
-    tone: "success" as const,
-    detail: "SELECT ... ORDER BY embedding <=> $1 LIMIT 3 (cosine 0.084)",
-  },
-  {
-    name: "ccloud Execution",
-    ms: 3.21,
-    tone: "success" as const,
-    detail: "ccloud cluster restart-node --node-id=2 --json",
-  },
-];
+const SPANS = SPAN_TRACE;
 
 const TOTAL = SPANS.reduce((a, s) => a + s.ms, 0);
 
