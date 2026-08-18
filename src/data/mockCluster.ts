@@ -364,3 +364,38 @@ export const REGION_ROLLUP = ["us-east-1", "us-west-2", "eu-central-1"].map((reg
     healthy: nodes.every((n) => n.status === "live"),
   };
 });
+
+/** Distributed trace spans for the telemetry view and trace exports. */
+export type TraceSpan = {
+  name: string;
+  ms: number;
+  tone: "info" | "slate" | "success";
+  detail: string;
+};
+
+export const SPAN_TRACE: TraceSpan[] = [
+  {
+    name: "CloudWatch Alarm",
+    ms: 0.5,
+    tone: "info",
+    detail: "Alarm 'lambda-vpc-timeout' → EventBridge → agent trigger",
+  },
+  {
+    name: "Bedrock Reasoning",
+    ms: 18.6,
+    tone: "slate",
+    detail: "Claude 3.5 Sonnet · 4-step chain-of-action plan · 1,204 tokens",
+  },
+  {
+    name: "CockroachDB Vector Search",
+    ms: 1.31,
+    tone: "success",
+    detail: "SELECT ... ORDER BY embedding <=> $1 LIMIT 3 (cosine 0.084)",
+  },
+  {
+    name: "ccloud Execution",
+    ms: 3.21,
+    tone: "success",
+    detail: "ccloud cluster restart-node --node-id=2 --json",
+  },
+];

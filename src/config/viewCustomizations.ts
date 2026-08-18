@@ -43,6 +43,8 @@ export type CustomButton = {
   toast?: string;
   /** Optional external link opened in a new tab */
   href?: string;
+  /** Named built-in behaviour executed on click (real app action) */
+  action?: "reindex" | "exportTraces" | "advisorSweep" | "emailRca" | "addRegion";
 };
 
 export type ViewCustomization = {
@@ -84,7 +86,7 @@ export const viewCustomizations: Record<ViewKey, ViewCustomization> = {
     ],
     cards: [],
     buttons: [
-      { label: "Re-index Runbooks", variant: "primary", toast: "Re-index job queued." },
+      { label: "Re-index Runbooks", variant: "primary", action: "reindex", toast: "Re-index job queued." },
     ],
   },
 
@@ -95,7 +97,7 @@ export const viewCustomizations: Record<ViewKey, ViewCustomization> = {
     ],
     cards: [],
     buttons: [
-      { label: "Export Traces", variant: "outline", toast: "Trace bundle exported." },
+      { label: "Export Traces", variant: "outline", action: "exportTraces", toast: "Trace bundle exported." },
     ],
   },
 
@@ -106,7 +108,7 @@ export const viewCustomizations: Record<ViewKey, ViewCustomization> = {
     ],
     cards: [],
     buttons: [
-      { label: "Run Advisor Sweep", variant: "primary", toast: "Advisor sweep started." },
+      { label: "Run Advisor Sweep", variant: "primary", action: "advisorSweep", toast: "Advisor sweep started." },
     ],
   },
 
@@ -117,7 +119,7 @@ export const viewCustomizations: Record<ViewKey, ViewCustomization> = {
     ],
     cards: [],
     buttons: [
-      { label: "Email RCA to Execs", variant: "outline", toast: "RCA sent to leadership." },
+      { label: "Email RCA to Execs", variant: "outline", action: "emailRca", toast: "RCA sent to leadership." },
     ],
   },
 
@@ -128,7 +130,7 @@ export const viewCustomizations: Record<ViewKey, ViewCustomization> = {
     ],
     cards: [],
     buttons: [
-      { label: "Add Region", variant: "primary", toast: "Region provisioning requested." },
+      { label: "Add Region", variant: "primary", action: "addRegion", toast: "Region provisioning requested." },
     ],
   },
 };
