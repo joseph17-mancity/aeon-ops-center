@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Layers, Cpu, CheckCircle, Database } from "lucide-react";
 import { toast } from "sonner";
 import { Metric, Panel, Pill } from "@/components/aeon/primitives";
+import { MCP_AUDIT_LOG } from "@/data/mockCluster";
 
 export const Route = createFileRoute("/advisor")({
   head: () => ({
@@ -130,15 +131,14 @@ function AdvisorView() {
         bodyClassName="p-0"
       >
         <div className="divide-y divide-border-subtle font-mono text-xs">
-          {[
-            ["tools/list", "8 tools · sql.query, cluster.metrics, audit.read"],
-            ["sql.query", "SHOW STATEMENT STATISTICS → 24,819 rows"],
-            ["cluster.metrics", "3 nodes healthy · cpu 0.34 avg"],
-            ["audit.read", "no transactional errors in window"],
-          ].map(([m, d]) => (
-            <div key={m} className="grid gap-1 px-5 py-3 sm:grid-cols-[12rem_minmax(0,1fr)]">
-              <span className="text-info">{m}</span>
-              <span className="min-w-0 break-words text-muted-foreground">{d}</span>
+          {MCP_AUDIT_LOG.filter((r) => r.actor === "MCP").map((r) => (
+            <div
+              key={r.t}
+              className="grid gap-1 px-5 py-3 sm:grid-cols-[8rem_minmax(0,1fr)_6rem]"
+            >
+              <span className="text-info">{r.t}</span>
+              <span className="min-w-0 break-words text-muted-foreground">{r.action}</span>
+              <span className="text-success">{r.result}</span>
             </div>
           ))}
         </div>

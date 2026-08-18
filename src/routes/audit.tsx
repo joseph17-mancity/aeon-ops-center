@@ -3,6 +3,7 @@ import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { FileText, Download, Terminal, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { KeyValue, Metric, Panel, Pill } from "@/components/aeon/primitives";
+import { MCP_AUDIT_LOG } from "@/data/mockCluster";
 
 export const Route = createFileRoute("/audit")({
   head: () => ({
@@ -24,43 +25,7 @@ export const Route = createFileRoute("/audit")({
   component: AuditView,
 });
 
-const AUDIT = [
-  {
-    t: "06:12:04.192",
-    actor: "ccloud CLI",
-    action: "cluster restart-node --node-id=2 --json",
-    result: "Success",
-    tone: "success" as const,
-  },
-  {
-    t: "06:12:04.140",
-    actor: "MCP",
-    action: "audit.read /mcp — transactional error scan",
-    result: "Clean",
-    tone: "info" as const,
-  },
-  {
-    t: "06:14:19.004",
-    actor: "Runtime",
-    action: "us-east-1 worker SIGKILL — lease released",
-    result: "Failure",
-    tone: "danger" as const,
-  },
-  {
-    t: "06:14:19.031",
-    actor: "CockroachDB",
-    action: "session lease acquired by us-west-2 worker",
-    result: "Resumed",
-    tone: "success" as const,
-  },
-  {
-    t: "06:14:19.404",
-    actor: "ccloud CLI",
-    action: "cluster scale-nodes --region us-west-2 --json",
-    result: "Success",
-    tone: "success" as const,
-  },
-];
+const AUDIT = MCP_AUDIT_LOG;
 
 function AuditView() {
   return (
@@ -127,13 +92,14 @@ function AuditView() {
                 <th className="px-5 py-3 font-semibold">Timestamp</th>
                 <th className="px-5 py-3 font-semibold">Actor</th>
                 <th className="px-5 py-3 font-semibold">Action</th>
+                <th className="px-5 py-3 font-semibold">Region</th>
                 <th className="px-5 py-3 font-semibold">Result</th>
               </tr>
             </thead>
             <tbody>
               {AUDIT.map((a) => (
                 <tr
-                  key={a.t}
+                  key={a.t + a.action}
                   className="border-b border-border-subtle/70 last:border-0 hover:bg-surface/60"
                 >
                   <td className="px-5 py-3.5 font-mono text-xs text-muted-foreground">{a.t}</td>
@@ -144,6 +110,9 @@ function AuditView() {
                     </span>
                   </td>
                   <td className="px-5 py-3.5 font-mono text-xs">{a.action}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs text-muted-foreground">
+                    {a.region}
+                  </td>
                   <td className="px-5 py-3.5">
                     <Pill tone={a.tone}>{a.result}</Pill>
                   </td>
