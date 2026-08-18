@@ -164,7 +164,7 @@ export const clusterActions = {
     set({ phase: "failing", progress: 38, failedNode: "lambda-east", simRuns: state.simRuns + 1 });
     pushEvent(OUTAGE_STEPS[0]!);
     pushAudit({
-      actor: "AEON",
+      actor: "Runtime",
       action: "region outage simulated -> us-east-1 worker SIGKILL",
       region: "us-east-1",
       result: "Failover",
@@ -182,7 +182,7 @@ export const clusterActions = {
         simTimer = null;
         set({ progress: 100 });
         pushAudit({
-          actor: "CRDB",
+          actor: "CockroachDB",
           action: "session_crdb_9842_failover resumed from checkpoint in us-west-2",
           region: "us-west-2",
           result: "0 data loss",
@@ -199,7 +199,7 @@ export const clusterActions = {
     }
     set({ phase: "stable", progress: 75, events: BASE_EVENTS, failedNode: null });
     pushAudit({
-      actor: "AEON",
+      actor: "Runtime",
       action: "operator reset live session state",
       region: "global",
       result: "Reset",
@@ -216,7 +216,7 @@ export const clusterActions = {
         msg: `${label ?? id} marked FAILED. Rerouting execution to surviving worker.`,
       });
       pushAudit({
-        actor: "AEON",
+        actor: "Runtime",
         action: `topology failure injected on ${label ?? id}`,
         region: "global",
         result: "Rerouted",
@@ -224,7 +224,7 @@ export const clusterActions = {
       });
     } else {
       pushAudit({
-        actor: "AEON",
+        actor: "Runtime",
         action: "topology restored — all workloads healthy",
         region: "global",
         result: "Healthy",
@@ -247,7 +247,7 @@ export const clusterActions = {
     if (!next) return null;
     set({ extraRegions: [...state.extraRegions, next] });
     pushAudit({
-      actor: "CCLOUD",
+      actor: "ccloud CLI",
       action: `ccloud cluster region add --region ${next.sub}`,
       region: next.sub,
       result: "Provisioned",
@@ -321,7 +321,7 @@ export const clusterActions = {
         const rows = state.vectorRows + 1_204;
         set({ reindexing: false, reindexProgress: 100, vectorRows: rows });
         pushAudit({
-          actor: "CRDB",
+          actor: "CockroachDB",
           action: "runbook_embeddings vector index rebuilt (1,204 new rows)",
           region: "global",
           result: "Indexed",
