@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { useMemo, useState } from "react";
 import { Database, Search, CheckCircle } from "lucide-react";
 import { Metric, Panel, Pill } from "@/components/aeon/primitives";
@@ -172,6 +173,7 @@ function MemoryView() {
           )}
         </ul>
       </Panel>
+    <CustomBlocks view="memory" />
     </div>
   );
 }

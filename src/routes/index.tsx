@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { useEffect, useRef, useState } from "react";
 import {
   Activity,
@@ -268,6 +269,7 @@ function LiveOperations() {
           </button>
         </div>
       </Panel>
+    <CustomBlocks view="operations" />
     </div>
   );
 }

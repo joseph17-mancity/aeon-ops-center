@@ -34,7 +34,7 @@ export function CustomBlocks({ view }: { view: ViewKey }) {
               key={m.label}
               label={m.label}
               value={m.value}
-              hint={m.hint}
+              {...(m.hint ? { hint: m.hint } : {})}
               tone={m.tone ?? "slate"}
             />
           ))}
@@ -44,7 +44,12 @@ export function CustomBlocks({ view }: { view: ViewKey }) {
       {config.cards.length > 0 && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {config.cards.map((c) => (
-            <Panel key={c.title} title={c.title} subtitle={c.subtitle} bodyClassName="p-0">
+            <Panel
+              key={c.title}
+              title={c.title}
+              {...(c.subtitle ? { subtitle: c.subtitle } : {})}
+              bodyClassName="p-0"
+            >
               <ul className="divide-y divide-border-subtle">
                 {c.rows.map((r) => (
                   <li

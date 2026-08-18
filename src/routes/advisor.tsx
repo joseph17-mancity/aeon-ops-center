@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { useState } from "react";
 import { Layers, Cpu, CheckCircle, Database } from "lucide-react";
 import { toast } from "sonner";
@@ -133,6 +134,7 @@ function AdvisorView() {
           ))}
         </div>
       </Panel>
+    <CustomBlocks view="advisor" />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { useState } from "react";
 import { Cpu, Activity } from "lucide-react";
 import { Metric, Panel, Pill } from "@/components/aeon/primitives";
@@ -153,6 +154,7 @@ function TelemetryView() {
           </table>
         </div>
       </Panel>
+    <CustomBlocks view="telemetry" />
     </div>
   );
 }

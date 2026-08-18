@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { FileText, Download, Terminal, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { KeyValue, Metric, Panel, Pill } from "@/components/aeon/primitives";
@@ -150,6 +151,7 @@ function AuditView() {
           </table>
         </div>
       </Panel>
+    <CustomBlocks view="audit" />
     </div>
   );
 }

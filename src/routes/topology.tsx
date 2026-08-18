@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { useState } from "react";
 import { GitBranch, AlertTriangle, CheckCircle, Server } from "lucide-react";
 import { Panel, Pill } from "@/components/aeon/primitives";
@@ -226,6 +227,7 @@ function TopologyView() {
           </ul>
         </Panel>
       </div>
+    <CustomBlocks view="topology" />
     </div>
   );
 }
