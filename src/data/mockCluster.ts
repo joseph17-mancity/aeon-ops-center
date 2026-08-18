@@ -284,7 +284,7 @@ export const MCP_AUDIT_LOG: AuditRow[] = [
 ];
 
 /** Region rollups derived from CRDB_NODES */
-export const REGION_ROLLUP = ["us-east-1", "us-west-2", "eu-central-1"].map((region) => {
+export const REGION_ROLLUP = REGION_IDS.map((region) => {
   const nodes = CRDB_NODES.filter((n) => n.region === region);
   return {
     region,
