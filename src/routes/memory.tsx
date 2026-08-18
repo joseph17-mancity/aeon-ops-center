@@ -3,6 +3,7 @@ import { CustomBlocks } from "@/components/aeon/CustomBlocks";
 import { useMemo, useState } from "react";
 import { Database, Search, CheckCircle } from "lucide-react";
 import { Metric, Panel, Pill } from "@/components/aeon/primitives";
+import { REGION_ROLLUP, VECTOR_INDEX_ROWS } from "@/data/mockCluster";
 
 export const Route = createFileRoute("/memory")({
   head: () => ({
@@ -24,52 +25,8 @@ export const Route = createFileRoute("/memory")({
   component: MemoryView,
 });
 
-const REGIONS = [
-  {
-    region: "us-east-1",
-    embeddings: "1,284,904",
-    sync: "99.999%",
-    txn: "Consistent (RC-Serializable)",
-    lag: "1.2 ms",
-  },
-  {
-    region: "us-west-2",
-    embeddings: "1,284,904",
-    sync: "99.999%",
-    txn: "Consistent (RC-Serializable)",
-    lag: "1.8 ms",
-  },
-  {
-    region: "eu-central-1",
-    embeddings: "1,284,901",
-    sync: "99.999%",
-    txn: "Consistent (RC-Serializable)",
-    lag: "34.6 ms",
-  },
-];
-
-const RUNBOOKS = [
-  {
-    title: "Auto-healing AWS Lambda VPC Timeout in us-east-1",
-    cosine: 0.084,
-    tags: "lambda · vpc · timeout",
-  },
-  {
-    title: "CockroachDB node lease rebalance after AZ loss",
-    cosine: 0.191,
-    tags: "crdb · lease · failover",
-  },
-  {
-    title: "Bedrock throttling backoff for reasoning chains",
-    cosine: 0.264,
-    tags: "bedrock · throttle",
-  },
-  {
-    title: "Kubernetes on-prem worker drain and reschedule",
-    cosine: 0.412,
-    tags: "k8s · hybrid",
-  },
-];
+const REGIONS = REGION_ROLLUP;
+const RUNBOOKS = VECTOR_INDEX_ROWS;
 
 function MemoryView() {
   const [q, setQ] = useState("VPC Timeout & Lambda Retry");
@@ -112,6 +69,7 @@ function MemoryView() {
             <thead>
               <tr className="border-b border-border-subtle text-left text-[0.68rem] uppercase tracking-[0.12em] text-muted-foreground">
                 <th className="px-5 py-3 font-semibold">Region</th>
+                <th className="px-5 py-3 font-semibold">Nodes</th>
                 <th className="px-5 py-3 font-semibold">Embeddings</th>
                 <th className="px-5 py-3 font-semibold">Sync status</th>
                 <th className="px-5 py-3 font-semibold">SQL consistency</th>
@@ -125,6 +83,7 @@ function MemoryView() {
                   className="border-b border-border-subtle/70 last:border-0 hover:bg-surface/60"
                 >
                   <td className="px-5 py-3.5 font-mono text-xs font-semibold">{r.region}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs tabular-nums">{r.nodes}</td>
                   <td className="px-5 py-3.5 font-mono text-xs tabular-nums">{r.embeddings}</td>
                   <td className="px-5 py-3.5">
                     <Pill tone="success">
@@ -157,12 +116,14 @@ function MemoryView() {
         <ul className="mt-4 space-y-2">
           {results.map((r) => (
             <li
-              key={r.title}
+              key={r.id}
               className="grid animate-fade-up grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-card px-4 py-3 ring-1 ring-border-subtle"
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{r.title}</p>
-                <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">{r.tags}</p>
+                <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
+                  {r.id} · {r.tags} · {r.dims}d · {r.hits} hits · {r.region}
+                </p>
               </div>
               <Pill tone={r.cosine < 0.1 ? "success" : "info"}>Cosine {r.cosine.toFixed(3)}</Pill>
             </li>
