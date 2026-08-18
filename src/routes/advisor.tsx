@@ -140,7 +140,7 @@ function AdvisorView() {
               <span className="min-w-0 break-words text-muted-foreground">{r.action}</span>
               <span className="text-success">{r.result}</span>
             </div>
-          ))
+          ))}
         </div>
       </Panel>
       <CustomBlocks view="advisor" />
