@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CustomBlocks } from "@/components/aeon/CustomBlocks";
-import { useState } from "react";
 import { Layers, Cpu, CheckCircle, Database } from "lucide-react";
 import { toast } from "sonner";
 import { Metric, Panel, Pill } from "@/components/aeon/primitives";
 import { MCP_AUDIT_LOG } from "@/data/mockCluster";
+import { clusterActions, useAuditTrail, useCluster } from "@/state/clusterStore";
 
 export const Route = createFileRoute("/advisor")({
   head: () => ({
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/advisor")({
   component: AdvisorView,
 });
 
-const RECOMMENDATIONS = [
+const BASE_RECOMMENDATIONS = [
   {
     id: "rec-01",
     title: "Recommend creating secondary VECTOR INDEX on runbook_embeddings",
@@ -51,10 +51,13 @@ const RECOMMENDATIONS = [
 ];
 
 function AdvisorView() {
-  const [applied, setApplied] = useState<string[]>([]);
+  const applied = useCluster((s) => s.appliedRecs);
+  const extraRecs = useCluster((s) => s.extraRecs);
+  const auditTrail = useAuditTrail();
+  const RECOMMENDATIONS = [...BASE_RECOMMENDATIONS, ...extraRecs];
 
   const apply = (id: string, title: string) => {
-    setApplied((a) => [...a, id]);
+    clusterActions.applyRec(id, title);
     toast.success("SQL applied via MCP", { description: title });
   };
 
@@ -131,9 +134,9 @@ function AdvisorView() {
         bodyClassName="p-0"
       >
         <div className="divide-y divide-border-subtle font-mono text-xs">
-          {MCP_AUDIT_LOG.filter((r) => r.actor === "MCP").map((r) => (
+          {auditTrail.filter((r) => r.actor === "MCP").map((r) => (
             <div
-              key={r.t}
+              key={`${r.t}-${r.action}`}
               className="grid gap-1 px-5 py-3 sm:grid-cols-[8rem_minmax(0,1fr)_6rem]"
             >
               <span className="text-info">{r.t}</span>
